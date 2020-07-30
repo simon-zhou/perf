@@ -1,0 +1,14 @@
+[This](http://smalldatum.blogspot.com/2014/06/benchmarketing.html) is a very good article about how to do benchmarking. Key takeaways:
+- Explain the results. This is the most important suggestion and I try to ignore results that are not explained. Why was one system faster than another (better algorithm, less code bloat, simple perf bug, etc)? Simple monitoring tools like vmstat and iostat are a start but you will eventually need to look at code. Run PMP to understand where threads are busy or waiting. Run Linux perf to see what consumes CPU time.
+- Explain whether you made any attempt to properly configure the systems tested. The quality of a benchmark result is inversely related to the number of systems tested because it is less likely that the people doing the test have expertise in all of the systems. Publish the configuration files.
+- Explain whether you have expertise in using the benchmark client.
+- Explain the context for the test. The result can be described as A is faster than B in this context so you need to explain that context. 
+  - What was the workload? 
+  - What hardware was used (CPU description, #sockets, cores per socket, clock rate, amount of RAM, type of storage)? What rate can the storage sustain independent of the DBMS for both IOPs and MB/second?
+  - What product versions were used? Comparing your beta versus their GA release that runs in production might be bogus. It can also be bogus to compare production systems with research systems that have no overhead from monitoring, error logging, optimization, parsing and other features required in the real world.
+  - How was the test deployed? Did clients share the same server as the DBMS? If not what was the network distance & throughput between them.
+  - Were the file structures and storage devices aged? A b-tree fragments from random updates over time. Write-optimized databases and flash get garbage to be collected. Doing a sequential load into a b-tree or LSM and then immediately running tests means the file structure isn't in a steady state.
+  - How full was the storage device? Flash and spinning disk perform very differently when full than when empty. 
+  - Was buffered or direct IO used? If buffered IO was used are you sure...
+    - a good value was used for filesystem readahead?
+    - a good posix_fadvise calls were done to enable or disable readahead?
